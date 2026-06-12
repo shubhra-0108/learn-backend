@@ -1,46 +1,45 @@
-//server ko create krna
 const express = require('express');
+const noteModel = require("./models/note.model")
 
-const app= express();
-
+const app = express();
 app.use(express.json());
 
-const notes = [];
+app.post("/notes", async (req,res)=>{
+    const data = req.body;
+    await noteModel.create({
+        title : data.title,
+        description : data.description
 
-app.post('/notes', (req,res) =>{
-    notes.push(req.body);
-
-    res.status(201).json({
-        message: "Note created successfully",
     });
-});
+    res.status(201).json({
+        message : "note created sucessfully"
+    });
 
-app.get('/notes',(req,res)=>{
+});
+app.get("/notes", async (req, res) => {
+    const notes = await noteModel.find(); //find fun returns an array
     res.status(200).json({
-        message: "Notes retrieved successfully",
+        message : "notes sent successfully",
         notes : notes
     });
 });
 
-app.delete('/notes/:index', (req,res) =>{
-    const index = req.params.index;
+app.delete("/notes/:id", async (req, res) => {
+    const id = req.params.id;
 
-    delete notes[index];
-    res.status(200).json({
-        message : "note deleted sucessfully"
+    await noteModel.findOneAndDelete({
+        _id : id
     });
 });
-app.patch('/notes/:index', (req,res) => {
-    const index = req.params.index;
-
+app.patch("/notes/:id", async(req, res) => {
+    const id = req.params.id;
     const description = req.body.description;
 
-    notes[index].description = description;
-
+    await nodeModel.findOneAndUpdate({_id : id} ,{description : description});
     res.status(200).json({
-        message: "note updated successfully"
+        message : "description updated successfully"
     });
-
 });
 
-module.exports = app; 
+
+module.exports = app;
